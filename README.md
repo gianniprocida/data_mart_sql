@@ -13,18 +13,18 @@
    <h3>How to run it?</h3>
    <ul>
      <li>Clone the repository from GitHub: git clone https://github.com/gianniprocida/data_mart_sql</li>
-     <li>Navigate to the pricingDataBinance: cd pricingDataBinance</li>
+     <li>Navigate to the data_mart_sql: cd data_mart_sql</li>
      <li>Install any dependencies required by the project:
       <ul>
-          <li>numpy</li>
-          <li>pandas</li>
-          <li>mysql-connector-python</li>
-          <li>sqlalchemy</li> 
+          <li>numpy.</li>
+          <li>pandas.</li>
+          <li>mysql-connector-python.</li>
+          <li>sqlalchemy.</li> 
       </ul>
      </li>
-     <li></li>
-     <li>.</li>
-    <li>Run the script analysis.py to analyze the closingprice table.</li>
+     <li>Execute the script myfun to generate the csv files.</li>
+     <li>Execute the script dataModeling.sql to establish relationships between tables. </li>
+    <li>Execute the PopulateTables.py to insert each csv file into the corresponding table.</li>
    </ul>     
 
 </body>
