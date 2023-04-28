@@ -29,7 +29,7 @@
     <li>Execute the script addFK.sql to establish relationships between tables in the database.</li>
    </ul> 
    <h2> </h2>    
-<img src="er.png" alt="Description of the image">
+<img src="erd.png" alt="Description of the image">
 
 </body>
 
