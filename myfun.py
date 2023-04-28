@@ -1,8 +1,10 @@
 from faker import Faker
 import random
 import os
+import csv 
+
 def generate_fake_addresses():
-    combined = f"id,street_name,house_number,city,state,zip_code\n"
+    combined = f"id,street_name,house_number,city,country,zip_code\n"
 
     with open("Addresses.csv","w") as f:
       f.write(combined)
@@ -21,13 +23,14 @@ def generate_fake_addresses():
       city = fake.city()
 
       # Generate a fake state
-      state = fake.country()
+      country = fake.country()
 
       # Generate a fake zip code
       zip_code = fake.zipcode()
 
 
-      combined = f"{id},{street_name},{house_number},{city},{state},{zip_code}\n"
+      combined = f"{id},{street_name},{house_number},{city},{country},{zip_code}\n"
+      print(combined)
       print(combined)
       with open("Addresses.csv","a") as f:
         f.write(combined)
@@ -96,7 +99,7 @@ def generate_fake_host():
 
 
 def generate_fake_reviews():
-    combined = f"id,listing_id,user_id,description,review_date,rating,host_response\n"
+    combined = f"id,listing_id,user_id,text,review_date,rating,host_response\n"
     mylisting_id = [0,1,2,3,3]
     myuser_id = [1,2,3,3,3]
     fake = Faker()
@@ -108,11 +111,11 @@ def generate_fake_reviews():
        id = i
        listing_id = mylisting_id.pop()
        user_id = myuser_id.pop()
-       description = fake.sentence(nb_words=6, variable_nb_words=True, ext_word_list=None)
+       text = fake.sentence(nb_words=6, variable_nb_words=True, ext_word_list=None)
        review_date = fake.date_between(start_date='-5y', end_date='today')
        rating = random.randint(1,6)
        host_response = fake.sentence(nb_words=6, variable_nb_words=True, ext_word_list=None)
-       combined = f"{id},{listing_id},{user_id},{description},{review_date},{rating},{host_response}\n"
+       combined = f"{id},{listing_id},{user_id},{text},{review_date},{rating},{host_response}\n"
        print(combined)
        with open("Reviews.csv","a") as f:
          f.write(combined)
@@ -146,10 +149,40 @@ def generate_fake_users():
        with open("Users.csv","a") as f:
          f.write(combined)
 
+def generate_fake_amenities():
+    combined = f"id,name,listing_id,description\n"
+    mynames = ["Wi-Fi","Kitchen","Pool","Free parking","Air conditioning"]
+    mydescriptions = ["High-speed internet access throughout the property",
+    "Fully equipped kitchen","Private outdoor pool for guest use only",
+    "Designated parking spot on property for guest use","Central air conditioning system in all rooms"]
+
+    myid = [4,3,2,1,0]
+    mylistingid = [0,1,2,3,4]
+    with open("Amenities.csv","w") as f:
+      f.write(combined)
+  
+    for i in range(len(myid)):
+       id = myid.pop()
+       name = mynames.pop()
+       listing_id = mylistingid.pop()
+       description = mydescriptions.pop()
+       combined = f"{id},{name},{listing_id},{description}\n"
+       print(combined)
+       with open("Amenities.csv","a") as f:
+         f.write(combined)
+
+
 if __name__=='__main__':
-   # Run the script to generate Host.csv,Addresses.csv,Listings.csv,Reviews.csv, and Users.csv
+   #Run the script to generate Host.csv,Addresses.csv,Listings.csv,Reviews.csv, and Users.csv
+   os.remove("Amenities.csv")
+   os.remove("Reviews.csv")
+   os.remove("Addresses.csv")
+   os.remove("Users.csv")
+   os.remove("Hosts.csv")
+   os.remove("Listings.csv")
    generate_fake_host()
    generate_fake_addresses()
    generate_fake_listings()
    generate_fake_reviews()
    generate_fake_users()
+   generate_fake_amenities()

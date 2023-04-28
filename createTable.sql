@@ -19,18 +19,4 @@ review_date date,rating int not null,host_response varchar(100));
 
 create table if not exists Amenities (id int not null,listing_id int not null,name varchar(50),
 description varchar(100));
-/*
-primary key(id),
-constraint fk_address foreign key (address_id) references Addresses(id),
-constraint fk_host foreign key(host_id) references Hosts(id));
 
-create table if not exists Reviews (id int not null,listing_id int not null,user_id int not null, text varchar(150),
-review_date date,rating int not null,host_response varchar(100),primary key(id),
-constraint fk_listing foreign key(listing_id) references Listings(id));
-*/
-
-/*
-0	1	Protect left bar pattern amount.	house	private room	5	2	1	301	5
-*
-insert into Listings (id,host_id,title,property_type,room_type,accommodates,bedrooms,bathrooms,price_per_night,address_id) values (0,1,"Protect","House","Private",5,2,1,5);
-/*
