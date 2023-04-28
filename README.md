@@ -22,9 +22,11 @@
           <li>sqlalchemy.</li> 
       </ul>
      </li>
-     <li>Execute the script myfun to generate the csv files.</li>
-     <li>Execute the script dataModeling.sql to establish relationships between tables. </li>
-    <li>Execute the PopulateTables.py to insert each csv file into the corresponding table.</li>
+     <li>Run the fun.py script to generate the CSV files and prepare them for insertion into the respective tables.</li>
+     <li>Execute the script createTable.sql to create tables in the data_mart_airbnb database. </li>
+    <li>Run the PopulateTables.py. This script will handle the insertion of the CSV files into the corresponding table.</li>
+    <li>Run the script addPK.sql to add a primary key to each table</li>
+    <li>Execute the script addFK.sql to establish relationships between tables in the database.</li>
    </ul>     
 
 </body>
