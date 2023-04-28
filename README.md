@@ -27,7 +27,9 @@
     <li>Run the PopulateTables.py. This script will handle the insertion of the CSV files into the corresponding table.</li>
     <li>Run the script addPK.sql to add a primary key to each table</li>
     <li>Execute the script addFK.sql to establish relationships between tables in the database.</li>
-   </ul>     
+   </ul> 
+   <h2> </h2>    
+<img src="er.png" alt="Description of the image">
 
 </body>
 
