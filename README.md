@@ -29,7 +29,13 @@
     <li>Execute the script addFK.sql to establish relationships between tables in the database.</li>
    </ul> 
    <h2> </h2>    
-<img src="erd.png" alt="Description of the image">
+<h2>Conception phase</h2>
+<img src="erd.png" alt="Description of the image" width="800"/>
+database management system for the Airbnb Use Case.
+Figure shows the physical data model that contains an excerpt of a model for our database 
+regarding the Airbnb use case. The squares represent our entities and are filled with attribues associated with our
+entities. The arrows between the squares indicate how the entities relate to one anothe
+
 
 </body>
 
