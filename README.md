@@ -30,7 +30,7 @@
    </ul> 
    <h2> </h2>    
 <h2>Conception phase</h2>
-<a href="url"><img src="https://github.com/gianniprocida/data_mart_sql/blob/main/erd.png" height="1000" width="1000" ></a>
+<a href="url"><img src="https://github.com/gianniprocida/data_mart_sql/blob/main/erd.png" height="1000" width="1500" ></a>
 
 
 Figure shows the physical data model that contains an excerpt of a model for our database 
