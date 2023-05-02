@@ -31,6 +31,7 @@
    <h2> </h2>    
 <h2>Conception phase</h2>
 <img src="erd.png" alt="Description of the image" width="800"/>
+![alt text](erd.png){width=800px}
 database management system for the Airbnb Use Case.
 Figure shows the physical data model that contains an excerpt of a model for our database 
 regarding the Airbnb use case. The squares represent our entities and are filled with attribues associated with our
