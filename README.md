@@ -35,8 +35,10 @@
 
 Figure shows the physical data model that contains an excerpt of a model for our database 
 regarding the Airbnb use case. The squares represent our entities and are filled with attribues associated with our
-entities. The arrows between the squares indicate how the entities relate to one anothe
-
+entities while the arrows between the squares indicate how the entities relate to one anothe
+<h3>Relationships</h3>
+<a href="url"><img src="https://github.com/gianniprocida/data_mart_sql/blob/main/relationships.png" height="900" width="3500" ></a>
+<h3>One-to-one
 
 </body>
 
