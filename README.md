@@ -30,16 +30,24 @@
    </ul> 
    <h2> </h2>    
 <h2>Conception phase</h2>
-<a href="url"><img src="https://github.com/gianniprocida/data_mart_sql/blob/main/erd.png" height="900" width="3500" ></a>
-
-
+<img src="https://github.com/gianniprocida/data_mart_sql/blob/main/erd.png" height="100" width="100">
 Figure shows the physical data model that contains an excerpt of a model for our database 
 regarding the Airbnb use case. The squares represent our entities and are filled with attribues associated with our
 entities while the arrows between the squares indicate how the entities relate to one anothe
 <h4>Relationships</h4>
-<a href="url"><img src="https://github.com/gianniprocida/data_mart_sql/blob/main/relationships.png" height="900" width="3500" ></a>
-<h3>One-to-one</h4>
-
+<img src="https://github.com/gianniprocida/data_mart_sql/blob/main/relationships.png" height="100" width="100"/>
+One-to-one: 
+<ul>
+    <li>A listing has one address</li>
+    <li>A listing has one amenity</li>
+    <li>A user has one address</li>
+</ul>
+One-to-many
+<ul>
+    <li>A user can write multiple reviews</li>
+    <li>A listing can have multiple reviews associated with it</li>
+    <li>A user can write multiple messages</li>
+</ul>
 </body>
 
 
