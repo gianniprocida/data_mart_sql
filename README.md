@@ -30,7 +30,7 @@
    </ul> 
    <h2> </h2>    
 <h2>Conception phase</h2>
-<img src="https://github.com/gianniprocida/data_mart_sql/blob/main/erd.png" height="500" width="1000">
+<img src="https://github.com/gianniprocida/data_mart_sql/blob/main/erd.png" height="700" width="1000">
 Figure shows the physical data model that contains an excerpt of a model for our database 
 regarding the Airbnb use case. The squares represent our entities and are filled with attribues associated with our
 entities while the arrows between the squares indicate how the entities relate to one anothe
