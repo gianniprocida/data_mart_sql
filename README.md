@@ -35,7 +35,7 @@ Figure shows the physical data model that contains an excerpt of a model for our
 regarding the Airbnb use case. The squares represent our entities and are filled with attribues associated with our
 entities while the arrows between the squares indicate how the entities relate to one anothe
 <h4>Relationships</h4>
-<img src="https://github.com/gianniprocida/data_mart_sql/blob/main/relationships.png" height="500" width="800"/>
+<img src="https://github.com/gianniprocida/data_mart_sql/blob/main/relationships.png" height="200" width="400"/>
 One-to-one: 
 <ul>
     <li>A listing has one address</li>
@@ -47,6 +47,11 @@ One-to-many
     <li>A listing can have multiple reviews associated with it, while each review can only be about one single listing.</li>
     <li>A user can write multiple messages, but each message is associated with only one user.</li>
     <li>A user can make multiple payments, while a payment can only be made by a single user.</li>
+</ul>
+Many-to-many
+<ul>
+    <li>A listing can have multiple amenities associated with it, and each amenity can be associated with 
+    multiple listings.</li>
 </ul>
 </body>
 
