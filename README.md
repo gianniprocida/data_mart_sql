@@ -39,14 +39,14 @@ entities while the arrows between the squares indicate how the entities relate t
 One-to-one: 
 <ul>
     <li>A listing has one address</li>
-    <li>A listing has one amenity</li>
     <li>A user has one address</li>
 </ul>
 One-to-many
 <ul>
-    <li>A user can write multiple reviews</li>
-    <li>A listing can have multiple reviews associated with it</li>
-    <li>A user can write multiple messages</li>
+    <li>A user can write multiple reviews, but each review is associated with only one user.</li>
+    <li>A listing can have multiple reviews associated with it, while each review can only be about one single listing.</li>
+    <li>A user can write multiple messages, but each message is associated with only one user.</li>
+    <li>A user can make multiple payments, while a payment can only be made by a single user.</li>
 </ul>
 </body>
 
