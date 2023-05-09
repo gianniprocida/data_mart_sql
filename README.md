@@ -30,12 +30,12 @@
    </ul> 
    <h2> </h2>    
 <h2>Conception phase</h2>
-<img src="https://github.com/gianniprocida/data_mart_sql/blob/main/erd.png" height="700" width="1000">
+<img src="https://github.com/gianniprocida/data_mart_sql/blob/main/pdm.png" height="700" width="1000">
 Figure shows the physical data model that contains an excerpt of a model for our database 
 regarding the Airbnb use case. The squares represent our entities and are filled with attribues associated with our
 entities while the arrows between the squares indicate how the entities relate to one anothe
 <h4>Relationships</h4>
-<img src="https://github.com/gianniprocida/data_mart_sql/blob/main/relationships.png" height="500" width="400"/>
+<img src="https://github.com/gianniprocida/data_mart_sql/blob/main/relationships.png" height="400" width="300"/>
 One-to-one: 
 <ul>
     <li>A listing has one address</li>
@@ -47,11 +47,15 @@ One-to-many
     <li>A listing can have multiple reviews associated with it, while each review can only be about one single listing.</li>
     <li>A user can write multiple messages, but each message is associated with only one user.</li>
     <li>A user can make multiple payments, while a payment can only be made by a single user.</li>
+    <li> A user can write multiple messages, but each messages is associated with only one user.
+    </li>
+
 </ul>
 Many-to-many
 <ul>
     <li>A listing can have multiple amenities associated with it, and each amenity can be associated with 
     multiple listings.</li>
+    <li> A reservation can have multiple payments associated with it, and each payment can be associated with multiple reservations.
 </ul>
 </body>
 
