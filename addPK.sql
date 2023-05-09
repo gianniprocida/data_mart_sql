@@ -16,3 +16,7 @@ alter table Amenities add primary key (id);
 alter table Messages add primary key (id);
 
 alter table Payments add primary key (id);
+
+alter table PaymentsReservations add primary key (id);
+
+alter table ListingsAmenities add primary key (id);
