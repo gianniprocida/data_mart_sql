@@ -33,7 +33,7 @@
 <img src="https://github.com/gianniprocida/data_mart_sql/blob/main/pdm.png" height="700" width="1000">
 
 
-Figure shows a comprehensive ERD diagramta model that contains an excerpt of a model for our database  regarding the Airbnb use case. The squares represent our entities and are filled with attribues associated with our
+Figure shows a comprehensive ERD diagram model that contains an excerpt of a model for our database  regarding the Airbnb use case. The squares represent our entities and are filled with attribues associated with our
 entities while the arrows between the squares indicate how the entities relate to one another.
 <h4>Relationships</h4>
 <img src="https://github.com/gianniprocida/data_mart_sql/blob/main/relationships.png" height="400" width="300"/>
