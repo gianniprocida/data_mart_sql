@@ -5,7 +5,13 @@ services:
     build: ./api
     ports:
       - "8080:5000"
-  mydb:
-    build: ./mydb
+  mysql:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: root
     ports:
-      - "80:80"
+      - "3306:3306"
+    volumes:
+      - "./mydb/data_mart_airbnb.sql:/docker-entrypoint-initdb.d/1.sql"
+      
