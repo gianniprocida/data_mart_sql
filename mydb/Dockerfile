@@ -1,8 +1,8 @@
-FROM mysql:latest
+FROM mysql:8
 
 
 COPY data_mart_airbnb.sql /docker-entrypoint-initdb.d/
-
+COPY my.cnf /etc/mysql/conf.d
 
 ENV MYSQL_ROOT_PASSWORD='example'
 

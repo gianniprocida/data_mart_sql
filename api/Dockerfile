@@ -1,14 +1,13 @@
-FROM python:3
+FROM       python:3
+LABEL      maintainer="Sawood Alam <@ibnesayeed>"
 
-WORKDIR /app
-COPY requirements.txt /app/
-RUN pip install -r requirements.txt
+WORKDIR    /app
+COPY       requirements.txt /app/
+RUN        pip install -r requirements.txt
 
-COPY *.py /app/
-COPY templates /app/
-RUN chmod a+x *.py
+COPY       *.py /app/
+RUN        chmod a+x *.py
+COPY       templates /app/templates
 
-CMD ["/app.py"]
-
-
+CMD        ["./app.py"]
 

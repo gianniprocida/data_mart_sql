@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+from flask import jsonify
 from flask import Flask, render_template, request
 from another_menu import Filter, Filter_by_price, Filter_by_location, Filter_by_rating
 app = Flask(__name__)
@@ -14,11 +16,14 @@ def filter_by_rating_route():
         print(rating)
         by_rating = Filter_by_rating()
         rows= by_rating.filter(rating)
-        print("Hello!!!!")
-        print(rows)
-        # Perform filtering logic based on rating
-        # Return the filtered results
-        return render_template('filter_results.html',rows = rows)
+        dict_data = []
+        for a,b,c,d,f in rows:
+           dict_data.append({'a':a,'b':b,'c':c,'d':d,'f':f})
+       
+        print(dict_data)
+          # Perform filtering logic based on rating
+          # Return the filtered results
+        return jsonify(dict_data)
     return render_template('filter_rating.html')
 
 @app.route('/filter/price', methods=['GET', 'POST'])
@@ -40,6 +45,5 @@ def filter_by_price_route():
 @app.route('/quit')
 def quit():
     return "Goodbye!"
-
-if __name__ == '__main__':
-    app.run(debug=True)
+app.run(debug=True)
+#app.run(host="0.0.0.0")
