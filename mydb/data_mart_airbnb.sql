@@ -18,7 +18,7 @@
 --
 -- Table structure for table `Amenities`
 --
-
+USE data_mart_airbnb;
 DROP TABLE IF EXISTS `Amenities`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -188,7 +188,8 @@ CREATE TABLE `Reservations` (
   `listing_id` int(11) NOT NULL,
   `check_in_date` date DEFAULT NULL,
   `check_out_date` date DEFAULT NULL,
-  `total_cost` decimal(8,4) DEFAULT NULL
+  `total_cost` decimal(8,4) DEFAULT NULL,
+  INDEX (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
