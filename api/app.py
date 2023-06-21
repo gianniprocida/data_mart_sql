@@ -45,5 +45,5 @@ def filter_by_price_route():
 @app.route('/quit')
 def quit():
     return "Goodbye!"
-app.run(debug=True)
-#app.run(host="0.0.0.0")
+#app.run(debug=True)
+app.run(host="0.0.0.0")
