@@ -7,7 +7,7 @@ class Filter():
     def __init__(self):
        self.cnx = getConn()
        self.cur = self.cnx.cursor()
-       self.cur.execute("use datamart_airbnb")
+       self.cur.execute("use data_mart_airbnb")
     def filter(self):
         pass
 
@@ -96,7 +96,7 @@ class Listing():
     def __init__(self,user_name):
         self.cnx = getConn()
         self.cur = self.cnx.cursor()
-        self.cur.execute("use datamart_airbnb")
+        self.cur.execute("use data_mart_airbnb")
         self.user_name = user_name
 
     @classmethod
@@ -111,7 +111,7 @@ class Listing():
     def is_valid(arg):
         cnx = getConn()
         cur = cnx.cursor()
-        cur.execute("use datamart_airbnb")
+        cur.execute("use data_mart_airbnb")
         query = """select last_name from Users where user_type='host'"""
         cur.execute(query)
         allowed_names = set()

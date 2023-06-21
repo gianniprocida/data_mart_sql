@@ -6,7 +6,7 @@ import sqlalchemy
 
 def getConn():
     cnx = mysql.connector.connect(
-        host="localhost",
+        host="192.168.178.133",
         user="root",
         password="root"
     )
@@ -16,7 +16,7 @@ def getConn():
 
 def populateTables():
     engine = create_engine("""mysql+mysqlconnector://{user}:{password}@{host}/{db}""".
-                           format(user="root", host="localhost", password="root", db="data_mart_airbnb"))
+                           format(user="root", host="192.168.178.133", password="root", db="data_mart_airbnb"))
 
     for csv_file in mydata:
         df = pd.read_csv(csv_file)
