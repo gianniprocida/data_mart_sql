@@ -10,12 +10,10 @@ services:
     command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: data_mart_airbnb
     ports:
       - "3306:3306"
     volumes:
-      - "./mydb/createTable.sql:/docker-entrypoint-initdb.d/1.sql"
-      - "./mydb/addPK.sql:/docker-entrypoint-initdb.d/2.sql"
-      - "./mydb/addFK.sql:/docker-entrypoint-initdb.d/3.sql"
       - "./mydb/data_mart_airbnb.sql:/docker-entrypoint-initdb.d/4.sql"
   
   
