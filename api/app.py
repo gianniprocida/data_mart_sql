@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from flask import jsonify
 from flask import Flask, render_template, request
-from another_menu import Filter, Filter_by_price, Filter_by_location, Filter_by_rating
+from menu import Filter, Filter_by_price, Filter_by_location, Filter_by_rating
 app = Flask(__name__)
 
 @app.route('/')
