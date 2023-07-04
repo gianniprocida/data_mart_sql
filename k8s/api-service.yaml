@@ -17,3 +17,4 @@ spec:
     io.kompose.service: api
 status:
   loadBalancer: {}
+

@@ -33,7 +33,7 @@ spec:
               value: data_mart_airbnb
             - name: MYSQL_ROOT_PASSWORD
               value: root
-          image: mysql
+          image: giprocida/mysql-cust
           name: mysql
           ports:
             - containerPort: 3306
@@ -47,4 +47,6 @@ spec:
         - name: sql-dump
           configMap:
             name: sql-dump-configmap
+      imagePullSecrets:
+        - name: mysecret1.0
 status: {}
