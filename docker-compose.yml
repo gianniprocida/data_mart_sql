@@ -17,5 +17,39 @@ services:
       - "3306:3306"
     volumes:
       - "./mydb/data_mart_airbnb.sql:/docker-entrypoint-initdb.d/4.sql"
+  zookeeper:
+    image: zookeeper:3.6.2
+    hostname: zookeeper
+    restart: always
+    environment:
+      ZOO_TICK_TIME: "2000"
+      ZOO_STANDALONE_ENABLED: "true"
+    ports:
+      - 2181:2181
+  broker:
+    image: bitnami/kafka:3.2
+    hostname: kafka-broker-1
+    restart: always
+    depends_on:
+      - zookeeper
+    ports:
+      - 9092:9092
+    volumes:
+      - ./broker/config:/config
+    entrypoint: [ "kafka-server-start.sh", "/config/broker-1.properties" ]
+    environment:
+      KAFKA_HEAP_OPTS: "-Xmx1G -Xms1G"
   
-  
+  schema_registry:
+    image: confluentinc/cp-schema-registry:6.0.0
+    hostname: schema_registry
+    depends_on:
+      - zookeeper
+      - broker
+    ports:
+      - "8081:8081"
+    restart: always
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema_registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: broker:9091
+      SCHEMA_REGISTRY_KAFKASTORE_TOPIC_REPLICATION_FACTOR: 1

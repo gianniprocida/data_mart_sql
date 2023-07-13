@@ -9,5 +9,6 @@ COPY       *.py /app/
 RUN        chmod a+x *.py
 COPY       templates /app/templates
 
-CMD        ["./app.py"]
+#CMD        ["./app.py"]
+CMD         ["python","-u","app.py" ]
 
