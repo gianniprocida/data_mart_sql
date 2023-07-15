@@ -5,7 +5,9 @@ from kafka import KafkaProducer,KafkaConsumer
 from menu import Filter, Filter_by_price, Filter_by_location, Filter_by_rating
 from myproducer import connect_kafka_producer,publish_message
 import json
+import socket
 from menu import getConn
+import pandas as pd
 
 app = Flask(__name__)
 
@@ -53,6 +55,7 @@ def update_users():
         first_name = request.form['first_name']
         last_name = request.form['last_name']
         email = request.form['email']
+        phone = request.form['phone_number']
         DoB = request.form['DoB']
         gender = request.form['gender']
         country = request.form['country']
@@ -63,6 +66,7 @@ def update_users():
         row = {
         'first_name': first_name,
         'last_name': last_name,
+        'phone_number':phone,
         'email': email,
         'DoB':DoB,
         'gender':gender,
@@ -73,33 +77,54 @@ def update_users():
        
 
         kafka_producer = connect_kafka_producer()
-
+        print("this is kakfa")
+        print(kafka_producer)
+        print("I am about to produce!!!!")
         if kafka_producer is not None:
-            print(kafka_producer)
+            print("Message produced: ",row)
+            print(" ")
             publish_message(kafka_producer,'myusers','hello',row)
-            print(row)
             kafka_producer.close()
+        import time
+        time.sleep(6)
 
-       # consumer = KafkaConsumer('myusers', auto_offset_reset='earliest',
-        #                      bootstrap_servers=['localhost:9092'], api_version=(0, 10), consumer_timeout_ms=1000)
+        print("Okay!! We successfully produced some data !!!")
+        print(" ")
+        consumer = KafkaConsumer('myusers', auto_offset_reset='earliest',
+                              bootstrap_servers=['kafka-broker-1:9092'], api_version=(0, 10), consumer_timeout_ms=1000)
         id = 24
+        print("I am about to consume!!!!!")
         for msg in consumer:
           
           mymsg = msg.value.decode('utf-8')
-          
-          fn = mymsg['first_name']
-          ln = mymsg['last_name']
-          email = mymsg['email']
-          DB = mymsg['DoB']
-          gender = mymsg['gender']
-          country = mymsg['country']
-          user_type = mymsg['user_type']
-          print(fn,ln,email,DB)
+          json_data = json.loads(mymsg)
+          fn = json_data['first_name']
+          ln = json_data['last_name']
+          email = json_data['email']
+          phone = json_data['phone_number']
+          DB = json_data['DoB']
+          gender = json_data['gender']
+          country = json_data['country']
+          user_type = json_data['user_type']
+          print(id,fn,ln,email,phone,DB,gender,country,user_type)
+          print("Ready to load data to mysql!")
+
+          socket.create_connection(('mysql',3306),timeout=5)
+
+          print("Connection was successful...")
+
+
           cnx = getConn()
           cur = cnx.cursor()
+          cur.execute("""use data_mart_airbnb""")
 
-          cur.execute("""insert into Users (id,first_name,last_name,email,phone_number,DoB,gender,country,user_type) values (?,?,?,?,?,?,?,?)""",(id,fn,ln,email,DB,gender,country,user_type))
-          cnx.commit()
+          print("""INSERT INTO Users (id, first_name, last_name, email, phone_number, DoB, gender, country, user_type)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""", (id, fn, ln, email, phone, DB, gender, country, user_type))
+          cur.execute("""INSERT INTO Users (id, first_name, last_name, email, phone_number, DoB, gender, country, user_type)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""", (id, fn, ln, email, phone, DB, gender, country, user_type))
+
+#24 AAAAA AAAA AA@gmail.com ssss ssss sss sss sss
+          cnx.commit() 
         consumer.close()
         # db_file = 'my_database.db'
 
@@ -161,5 +186,5 @@ def update_reservations():
 @app.route('/quit')
 def quit():
     return "Goodbye!"
-app.run(debug=True)
-#app.run(host="0.0.0.0")
+#app.run(debug=True)
+app.run(host="0.0.0.0")

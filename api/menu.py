@@ -18,6 +18,9 @@ def getConn():
         user=user,
         password=password
     )
+    print("host:",host)
+    print("user",user)
+    print("password",password)
 
     return cnx
 

@@ -11,7 +11,6 @@ def publish_message(producer_instance, topic_name, key, value):
         producer_instance.send(topic_name, key=key_bytes, value=value_bytes)
         producer_instance.flush()
         print('Message published successfully.')
-        kafka_producer.close()
       
     except Exception as ex:
         print('Exception in publishing message')
@@ -21,7 +20,7 @@ def publish_message(producer_instance, topic_name, key, value):
 def connect_kafka_producer():
     _producer = None
     try:
-        _producer = KafkaProducer(bootstrap_servers=['localhost:9092'], api_version=(0, 10))
+        _producer = KafkaProducer(bootstrap_servers=['kafka-broker-1:9092'], api_version=(0, 10))
     except Exception as ex:
         print('Exception while connecting Kafka')
         print(str(ex))

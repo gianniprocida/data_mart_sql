@@ -4,3 +4,4 @@ mysql.connector.python
 sqlalchemy
 pandas
 kafka-python
+confluent-kafka

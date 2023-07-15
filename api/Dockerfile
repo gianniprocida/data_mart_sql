@@ -12,3 +12,5 @@ COPY       templates /app/templates
 #CMD        ["./app.py"]
 CMD         ["python","-u","app.py" ]
 
+#CMD         ["python","-u","myexample.py"]
+
