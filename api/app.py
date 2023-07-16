@@ -5,11 +5,14 @@ from kafka import KafkaProducer,KafkaConsumer
 from menu import Filter, Filter_by_price, Filter_by_location, Filter_by_rating
 from myproducer import connect_kafka_producer,publish_message
 import json
-import socket
-from menu import getConn
-import pandas as pd
+import time
+import datetime
+from menu import getConn,check_connection
+import os
 
 app = Flask(__name__)
+
+
 
 @app.route('/')
 def display_menu():
@@ -48,7 +51,6 @@ def filter_by_price_route():
 
 
 
-
 @app.route('/update/users',methods=['GET','POST'])
 def update_users():
     if request.method == 'POST':
@@ -56,76 +58,117 @@ def update_users():
         last_name = request.form['last_name']
         email = request.form['email']
         phone = request.form['phone_number']
-        DoB = request.form['DoB']
+        dob_str = request.form['DoB']
         gender = request.form['gender']
         country = request.form['country']
         user_type = request.form['user_type']
-        print(first_name,last_name,DoB,gender,country)
         
+
+        #Validate DoB as a date format
+        try:
+            dob = datetime.datetime.strptime(dob_str, '%Y-%m-%d')
+        except ValueError:
+            return 'Invalid date format for DoB',400
+        
+        #Validate gender
+        if gender not in ["Male","Female"]:
+            return 'Invalid gender value',400
+        
+        # Validate user_typr
+        if user_type not in ["guest","host"]:
+            return 'Invalid user_type'
+
 
         row = {
         'first_name': first_name,
         'last_name': last_name,
         'phone_number':phone,
         'email': email,
-        'DoB':DoB,
+        'DoB':dob_str,
         'gender':gender,
         'country':country,
         'user_type':user_type
        }
-
+        
+        kafka_host = os.environ("kafka_HOST")
+        sock_obj = check_connection("kafka-broker-1",9092)
+        if sock_obj:
+        
+            kafka_producer = connect_kafka_producer()
        
+           
+            #Produce data to the Kafka broker
+            if kafka_producer is not None:
+                publish_message(kafka_producer,'myusers','test',row)
+                print("Producing data to the Kafka broker....")
+                kafka_producer.close()
+        
+                time.sleep(5)
 
-        kafka_producer = connect_kafka_producer()
-        print("this is kakfa")
-        print(kafka_producer)
-        print("I am about to produce!!!!")
-        if kafka_producer is not None:
-            print("Message produced: ",row)
-            print(" ")
-            publish_message(kafka_producer,'myusers','hello',row)
-            kafka_producer.close()
-        import time
-        time.sleep(6)
-
-        print("Okay!! We successfully produced some data !!!")
-        print(" ")
-        consumer = KafkaConsumer('myusers', auto_offset_reset='earliest',
-                              bootstrap_servers=['kafka-broker-1:9092'], api_version=(0, 10), consumer_timeout_ms=1000)
-        id = 24
-        print("I am about to consume!!!!!")
-        for msg in consumer:
-          
-          mymsg = msg.value.decode('utf-8')
-          json_data = json.loads(mymsg)
-          fn = json_data['first_name']
-          ln = json_data['last_name']
-          email = json_data['email']
-          phone = json_data['phone_number']
-          DB = json_data['DoB']
-          gender = json_data['gender']
-          country = json_data['country']
-          user_type = json_data['user_type']
-          print(id,fn,ln,email,phone,DB,gender,country,user_type)
-          print("Ready to load data to mysql!")
-
-          socket.create_connection(('mysql',3306),timeout=5)
-
-          print("Connection was successful...")
+                print("We successfully produced some data...")
+                print(" ")
 
 
-          cnx = getConn()
-          cur = cnx.cursor()
-          cur.execute("""use data_mart_airbnb""")
+                consumer = KafkaConsumer('myusers', auto_offset_reset='earliest',
+                                bootstrap_servers=['kafka-broker-1:9092'], api_version=(0, 10), consumer_timeout_ms=1000)
+              
+        
+                mysql_host=os.environ.get('mysql_HOST')
 
-          print("""INSERT INTO Users (id, first_name, last_name, email, phone_number, DoB, gender, country, user_type)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""", (id, fn, ln, email, phone, DB, gender, country, user_type))
-          cur.execute("""INSERT INTO Users (id, first_name, last_name, email, phone_number, DoB, gender, country, user_type)
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""", (id, fn, ln, email, phone, DB, gender, country, user_type))
+                sock_obj = check_connection(mysql_host,3306)
 
-#24 AAAAA AAAA AA@gmail.com ssss ssss sss sss sss
-          cnx.commit() 
-        consumer.close()
+                if sock_obj:
+                    cnx = getConn()
+                    cur = cnx.cursor()
+
+                    if cnx:
+                
+                        #Query the max id in the Users table
+                        cur.execute("""select max(id) from Users""")
+                        res = cur.fetchone()
+                        max_id = res[0] + 1
+                
+                        print("Ready to consume data...")
+                        for msg in consumer:
+                    
+                            mymsg = msg.value.decode('utf-8')
+                            json_data = json.loads(mymsg)
+                            fn = json_data['first_name']
+                            ln = json_data['last_name']
+                            email = json_data['email']
+                            phone = json_data['phone_number']
+                            dob = json_data['DoB']
+                            gender = json_data['gender']
+                            country = json_data['country']
+                            user_type = json_data['user_type']
+                            print(" ")
+                            time.sleep(5)
+                            print("Ready to load data to mysql database...")
+
+
+                            cur.execute("""INSERT INTO Users (id, first_name, last_name, email, phone_number, DoB, gender, country, user_type)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""", (max_id, fn, ln, email, phone, dob, gender, country, user_type))
+
+                            cnx.commit() 
+                        consumer.close()
+                        print(" ")
+                        print("Let's see if the record was added to the table")
+                        query = "SELECT * FROM Users ORDER BY id DESC LIMIT 1"
+
+                        cur.execute(query)
+
+                        res = cur.fetchone()
+                        print(res)
+
+                    else:
+                        print("Can't connect to mysql container. Exit...")
+
+                else:
+                    print("Can't connect to mysql container. Exit...")
+            else:
+                print("Can't connect to the Kafka-broker. Exit...")
+        else:
+            print("Can't connect to Kafka container. Exit..")
         # db_file = 'my_database.db'
 
         # # Create a table if it doesn't exist

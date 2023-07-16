@@ -1,3 +1,4 @@
-DB_HOST="mysql"
-DB_USER="root"
-DB_PASSWORD="root"
+mysql_HOST="mysql"
+mysql_USER="root"
+msql_PASSWORD="root"
+kafka_HOST="kafka-broker-1"

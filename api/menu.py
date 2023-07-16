@@ -4,11 +4,19 @@ import pandas as pd
 import mysql.connector
 from sqlalchemy import create_engine, Date, Enum
 import pandas as pd
-import sqlalchemy
-import os 
-#from dotenv import load_dotenv
+import os,socket
 
-#load_dotenv()
+
+def check_connection(host,port):
+    try:
+        socket_obj = socket.create_connection((host,port),timeout=5)
+        print(f"Connection to the {host} container was successfully established")
+        return socket_obj
+    except Exception as e:
+        print(f"Connection failed: {e}")
+
+
+
 def getConn():
     host = os.environ.get('DB_HOST')
     user = os.environ.get('DB_USER')
@@ -16,12 +24,9 @@ def getConn():
     cnx = mysql.connector.connect(
         host=host,
         user=user,
-        password=password
+        password=password,
+        db='data_mart_airbnb'
     )
-    print("host:",host)
-    print("user",user)
-    print("password",password)
-
     return cnx
 
 
