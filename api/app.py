@@ -7,7 +7,8 @@ from myproducer import connect_kafka_producer,publish_message
 import json
 import time
 import datetime
-from menu import getConn,check_connection
+from database_utils import getConn
+from connection_utils import check_connection
 import os
 
 app = Flask(__name__)
@@ -90,11 +91,15 @@ def update_users():
         'user_type':user_type
        }
         
-        kafka_host = os.environ("kafka_HOST")
-        sock_obj = check_connection("kafka-broker-1",9092)
+        kafka_host = os.environ.get("kafka_HOST")
+        kafka_port = os.environ.get("kafka_PORT")
+        bootstrap_servers = f"{kafka_host}:{kafka_port}"
+        sock_obj = check_connection(kafka_host,kafka_port)
+        print("helloooo??")
+        print(sock_obj)
         if sock_obj:
         
-            kafka_producer = connect_kafka_producer()
+            kafka_producer = connect_kafka_producer(bootstrap_servers)
        
            
             #Produce data to the Kafka broker
@@ -114,11 +119,17 @@ def update_users():
               
         
                 mysql_host=os.environ.get('mysql_HOST')
+                mysql_user = os.environ.get('mysql_USER')
+                mysql_password = os.environ.get('mysql_PASSWORD')
+                mysql_port = os.environ.get('mysql_PORT')
+                print(mysql_host,mysql_port)
+                sock_obj = check_connection(mysql_host,mysql_port)
 
-                sock_obj = check_connection(mysql_host,3306)
+                print(sock_obj)
+
 
                 if sock_obj:
-                    cnx = getConn()
+                    cnx = getConn(mysql_host,mysql_user,mysql_password)
                     cur = cnx.cursor()
 
                     if cnx:
@@ -169,51 +180,6 @@ def update_users():
                 print("Can't connect to the Kafka-broker. Exit...")
         else:
             print("Can't connect to Kafka container. Exit..")
-        # db_file = 'my_database.db'
-
-        # # Create a table if it doesn't exist
-
-        # # Connect to SQLite database
-        # conn = sqlite3.connect(db_file)
-        # cursor = conn.cursor()
-        # cursor.execute('''CREATE TABLE IF NOT EXISTS my_table
-        #         (id INTEGER PRIMARY KEY, attr1 TEXT,attr2 TEXT, attr3 TEXT,
-        #                attr4 TEXT,attr5 TEXT,attr6 TEXT,attr7 TEXT)''')
-        # conn.commit()
-
-
-
-        # print("Kafka:",kafka_producer)
-        # print(message)
-    #     print(message)
-    #     topic = 'mytest'
-    #     _producer = KafkaProducer(bootstrap_servers=['localhost:9092'], api_version=(0, 10))
-    #     print(" ")
-    #     print(_producer)
-    #     key_bytes = bytes('myk', encoding='utf-8')
-    #     _producer.send(topic,key=key_bytes,value=message.encode('utf-8'))
-    #     _producer.flush()
-      
-    #     if _producer is not None:
-    #         print("it s not okay")
-    #         _producer.close()
-
-    #     # kafka_producer.flush()
-
-    #     # print(type(first_name))
-
-      
-
-    #    # if kafka_producer is not None:
-    #     #     kafka_producer.close()
-
-    #     consumer = KafkaConsumer(topic, auto_offset_reset='earliest',
-    #                         bootstrap_servers=['localhost:9092'], api_version=(0, 10), consumer_timeout_ms=1000)
-    
-    #     for msg in consumer:
-    #       print(msg.value)
-    #     consumer.close()
-    # sleep(5)
 
 
     return render_template('update_Users.html') 
