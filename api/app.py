@@ -1,19 +1,88 @@
 #!/usr/bin/env python
 from flask import jsonify
 from flask import Flask, render_template, request
-from kafka import KafkaProducer,KafkaConsumer
 from menu import Filter, Filter_by_price, Filter_by_location, Filter_by_rating
-from myproducer import connect_kafka_producer,publish_message
+import base64
 import json
 import time
 import datetime
 from database_utils import getConn
 from connection_utils import check_connection
+import logging
+from os.path import dirname, abspath
+from time import gmtime
+
+from confluent_kafka import Producer
+
+
 import os
 
 app = Flask(__name__)
 
+logger = logging.getLogger('')  # Root logger, to catch all submodule logs
+logger.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s.%(msecs)03d|%(levelname)s|%(filename)s| %(message)s',
+                              datefmt='%Y-%m-%d %H:%M:%S')
+formatter.converter = gmtime  # Log UTC time
 
+if len(logger.handlers) == 0:
+    console = logging.StreamHandler()
+    console.setFormatter(formatter)
+    logger.addHandler(console)
+
+
+def _full_path_of(path):
+    base_dir = dirname(dirname(dirname(abspath(__file__))))
+    return f'{base_dir}{path}'
+
+
+def delivery_callback(error, msg) -> None:
+    """
+    Per-message delivery callback (triggered by poll() or flush())
+
+    :param error: None if the message was successfully delivered
+    :param msg: Message metadata
+    :return: None
+    """
+    if error is not None:
+        logger.error(f'Failed to deliver message: {error}')
+    else:
+        logger.info(f'Produced record to topic {msg.topic()} partition [{msg.partition()}] @ offset {msg.offset()}')
+
+kafka_host = os.environ.get("KAFKA_BROKER_HOST")
+kafka_port = os.environ.get("KAFKA_BROKER_PORT")
+
+topic = 'axual-local-example-demo'
+
+logging.info("Connection to %s:%s topic: %s",kafka_host,kafka_port,topic)
+
+
+# Kafka producer configuration
+configuration = {
+'bootstrap.servers': kafka_host + ":" + kafka_port,
+# SSL configuration
+'security.protocol': 'SSL',
+'ssl.endpoint.identification.algorithm': 'none',
+'ssl.certificate.location': _full_path_of('/tmp/client.pem'),
+'ssl.key.location': _full_path_of('/tmp/clientkey.pem'),
+'ssl.ca.location': _full_path_of('/tmp/client.pem'),
+'acks': 'all',
+# 'debug': 'all',
+'logger': logger
+}
+
+codedClientPub = open('/etc/certificates/client.pem','r')
+decodedClientPub = open(configuration['ssl.certificate.location'],'w')
+decodedClientPub.write(codedClientPub.read())
+
+codedClientPub.close()
+decodedClientPub.close()
+
+codedClientKey = open('/etc/certificates/clientkey.pem','r')
+decodedClientKey = open(configuration['ssl.key.location'],'w')
+decodedClientKey.write(codedClientKey.read())
+codedClientKey.close()
+decodedClientKey.close()
 
 @app.route('/')
 def display_menu():
@@ -90,97 +159,27 @@ def update_users():
         'country':country,
         'user_type':user_type
        }
+      
+        producer = Producer(configuration)
+
+        try:
+            logger.info(f'Starting kafka producer to produce to topic: {topic}. ^C to exit.')
+            for n in range(10):
+                record_key = f'key_{n}'
+                record_value = f'value_{n}'
+
+                producer.poll(0)
+                producer.produce(topic, key=record_key, value=record_value, on_delivery=delivery_callback)
+
+            logger.info('Done producing.')
+        except KeyboardInterrupt:
+            logger.info('Caught KeyboardInterrupt, stopping.')
+        finally:
+            if producer is not None:
+                logger.info('Flushing producer.')
+                producer.flush()
+
         
-        kafka_host = os.environ.get("kafka_HOST")
-        kafka_port = os.environ.get("kafka_PORT")
-        bootstrap_servers = f"{kafka_host}:{kafka_port}"
-        sock_obj = check_connection(kafka_host,kafka_port)
-        print("helloooo??")
-        print(sock_obj)
-        if sock_obj:
-        
-            kafka_producer = connect_kafka_producer(bootstrap_servers)
-       
-           
-            #Produce data to the Kafka broker
-            if kafka_producer is not None:
-                publish_message(kafka_producer,'myusers','test',row)
-                print("Producing data to the Kafka broker....")
-                kafka_producer.close()
-        
-                time.sleep(5)
-
-                print("We successfully produced some data...")
-                print(" ")
-
-
-                consumer = KafkaConsumer('myusers', auto_offset_reset='earliest',
-                                bootstrap_servers=['kafka-broker-1:9092'], api_version=(0, 10), consumer_timeout_ms=1000)
-              
-        
-                mysql_host=os.environ.get('mysql_HOST')
-                mysql_user = os.environ.get('mysql_USER')
-                mysql_password = os.environ.get('mysql_PASSWORD')
-                mysql_port = os.environ.get('mysql_PORT')
-                print(mysql_host,mysql_port)
-                sock_obj = check_connection(mysql_host,mysql_port)
-
-                print(sock_obj)
-
-
-                if sock_obj:
-                    cnx = getConn(mysql_host,mysql_user,mysql_password)
-                    cur = cnx.cursor()
-
-                    if cnx:
-                
-                        #Query the max id in the Users table
-                        cur.execute("""select max(id) from Users""")
-                        res = cur.fetchone()
-                        max_id = res[0] + 1
-                
-                        print("Ready to consume data...")
-                        for msg in consumer:
-                    
-                            mymsg = msg.value.decode('utf-8')
-                            json_data = json.loads(mymsg)
-                            fn = json_data['first_name']
-                            ln = json_data['last_name']
-                            email = json_data['email']
-                            phone = json_data['phone_number']
-                            dob = json_data['DoB']
-                            gender = json_data['gender']
-                            country = json_data['country']
-                            user_type = json_data['user_type']
-                            print(" ")
-                            time.sleep(5)
-                            print("Ready to load data to mysql database...")
-
-
-                            cur.execute("""INSERT INTO Users (id, first_name, last_name, email, phone_number, DoB, gender, country, user_type)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""", (max_id, fn, ln, email, phone, dob, gender, country, user_type))
-
-                            cnx.commit() 
-                        consumer.close()
-                        print(" ")
-                        print("Let's see if the record was added to the table")
-                        query = "SELECT * FROM Users ORDER BY id DESC LIMIT 1"
-
-                        cur.execute(query)
-
-                        res = cur.fetchone()
-                        print(res)
-
-                    else:
-                        print("Can't connect to mysql container. Exit...")
-
-                else:
-                    print("Can't connect to mysql container. Exit...")
-            else:
-                print("Can't connect to the Kafka-broker. Exit...")
-        else:
-            print("Can't connect to Kafka container. Exit..")
-
 
     return render_template('update_Users.html') 
 

@@ -2,18 +2,27 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
+    deployment.kubernetes.io/revision: "2"
     kompose.cmd: kompose convert
     kompose.version: 1.28.0 (HEAD)
-  creationTimestamp: null
+ 
   labels:
     io.kompose.service: api
   name: api
+  namespace: datamart
+  resourceVersion: "168796"
 spec:
+  progressDeadlineSeconds: 600
   replicas: 1
+  revisionHistoryLimit: 10
   selector:
     matchLabels:
       io.kompose.service: api
-  strategy: {}
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
   template:
     metadata:
       annotations:
@@ -25,28 +34,53 @@ spec:
         io.kompose.service: api
     spec:
       containers:
-        - env:
-            - name: DB_HOST
-              valueFrom:
-                configMapKeyRef:
-                  key: DB_HOST
-                  name: env
-            - name: DB_PASSWORD
-              valueFrom:
-                configMapKeyRef:
-                  key: DB_PASSWORD
-                  name: env
-            - name: DB_USER
-              valueFrom:
-                configMapKeyRef:
-                  key: DB_USER
-                  name: env
-          image: giprocida/myapi:3.1
-          name: api
-          ports:
-            - containerPort: 5000
-          resources: {}
-      restartPolicy: Always
+      - env:
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              key: DB_HOST
+              name: env
+        - name: DB_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: DB_PASSWORD
+              name: env
+        - name: DB_USER
+          valueFrom:
+            configMapKeyRef:
+              key: DB_USER
+              name: env
+        - name: KAFKA_BROKER_HOST
+          valueFrom:
+            configMapKeyRef:
+              key: KAFKA_BROKER_HOST
+              name: env
+        - name: KAFKA_BROKER_PORT
+          valueFrom:
+            configMapKeyRef:
+              key: KAFKA_BROKER_PORT
+              name:  env
+        image: newapi:1.0
+        imagePullPolicy: Never
+        name: api
+        volumeMounts:
+          - name:  certvolume
+            mountPath: "/etc/certificates"
+            readOnly: true
+        ports:
+        - containerPort: 5000
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
       imagePullSecrets:
-        - name: mysecret1.0
-status: {}
+      - name: mysecret1.0
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 5
+      volumes:
+        - name:  certvolume
+          secret:
+            secretName: broker-certs

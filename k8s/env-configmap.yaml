@@ -3,6 +3,8 @@ data:
   DB_HOST: mysql
   DB_PASSWORD: root
   DB_USER: root
+  KAFKA_BROKER_HOST: platform.local
+  KAFKA_BROKER_PORT: "31757"
 kind: ConfigMap
 metadata:
   creationTimestamp: null
