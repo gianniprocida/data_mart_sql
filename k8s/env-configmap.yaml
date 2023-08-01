@@ -5,6 +5,12 @@ data:
   DB_USER: root
   KAFKA_BROKER_HOST: platform.local
   KAFKA_BROKER_PORT: "31757"
+  TOPIC: axual-local-example-demo
+  TMPCERTLOCATION: /tmp
+  CERTLOCATION: /etc/certificates
+  CLIENTPUB: client.pem
+  CLIENTKEY: clientkey.pem
+  CA: client.pem
 kind: ConfigMap
 metadata:
   creationTimestamp: null

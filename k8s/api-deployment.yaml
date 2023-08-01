@@ -60,6 +60,36 @@ spec:
             configMapKeyRef:
               key: KAFKA_BROKER_PORT
               name:  env
+        - name: TOPIC
+          valueFrom:
+            configMapKeyRef:
+              key: TOPIC
+              name:  env
+        - name: TMPCERTLOCATION
+          valueFrom:
+            configMapKeyRef:
+              key: TMPCERTLOCATION
+              name:  env
+        - name: CERTLOCATION
+          valueFrom:
+            configMapKeyRef:
+              key: CERTLOCATION
+              name:  env
+        - name: CLIENTPUB
+          valueFrom:
+            configMapKeyRef:
+              key: CLIENTPUB
+              name:  env
+        - name: CLIENTKEY
+          valueFrom:
+            configMapKeyRef:
+              key: CLIENTKEY
+              name:  env
+        - name: CA
+          valueFrom:
+            configMapKeyRef:
+              key: CA
+              name:  env
         image: newapi:1.0
         imagePullPolicy: Never
         name: api

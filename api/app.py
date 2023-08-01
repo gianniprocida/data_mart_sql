@@ -49,13 +49,35 @@ def delivery_callback(error, msg) -> None:
     else:
         logger.info(f'Produced record to topic {msg.topic()} partition [{msg.partition()}] @ offset {msg.offset()}')
 
+
+def publish_message(producer_instance, topic_name, key, value):
+    try:
+        key_bytes = bytes(key, encoding='utf-8')
+        value_str = json.dumps(value)  # Serialize dictionary to JSON string
+        value_bytes = bytes(value_str, encoding='utf-8')
+        producer_instance.poll(0)
+        producer_instance.produce(topic_name, key=key_bytes, value=value_bytes,on_delivery=delivery_callback)
+      
+    except Exception as ex:
+        logger.error('Exception in publishing message')
+        logger.error("%s",str(ex))
+    finally:
+        if producer_instance is not None:
+            logger.info('Flushing producer.')
+            producer_instance.flush()
+
+
 kafka_host = os.environ.get("KAFKA_BROKER_HOST")
 kafka_port = os.environ.get("KAFKA_BROKER_PORT")
-
-topic = 'axual-local-example-demo'
+topic = os.environ.get("TOPIC")
+tmpCertLocation = str(os.environ.get("TMPCERTLOCATION"))
+certLocation = str(os.environ.get("CERTLOCATION"))
+clientPub = str(os.environ.get("CLIENTPUB"))
+clientKey = str(os.environ.get("CLIENTKEY"))
+ca = str(os.environ.get("CA"))
 
 logging.info("Connection to %s:%s topic: %s",kafka_host,kafka_port,topic)
-
+logging.info("%s %s %s %s %s",tmpCertLocation,certLocation,clientPub,clientKey,ca)
 
 # Kafka producer configuration
 configuration = {
@@ -63,26 +85,29 @@ configuration = {
 # SSL configuration
 'security.protocol': 'SSL',
 'ssl.endpoint.identification.algorithm': 'none',
-'ssl.certificate.location': _full_path_of('/tmp/client.pem'),
-'ssl.key.location': _full_path_of('/tmp/clientkey.pem'),
-'ssl.ca.location': _full_path_of('/tmp/client.pem'),
+'ssl.certificate.location': _full_path_of(tmpCertLocation + '/' + clientPub),
+'ssl.key.location': _full_path_of(tmpCertLocation + '/' + clientKey),
+'ssl.ca.location': _full_path_of(tmpCertLocation + '/' + ca),
 'acks': 'all',
 # 'debug': 'all',
 'logger': logger
 }
 
-codedClientPub = open('/etc/certificates/client.pem','r')
+codedClientPub = open(certLocation + '/' + clientPub,'r')
 decodedClientPub = open(configuration['ssl.certificate.location'],'w')
 decodedClientPub.write(codedClientPub.read())
 
 codedClientPub.close()
 decodedClientPub.close()
 
-codedClientKey = open('/etc/certificates/clientkey.pem','r')
+codedClientKey = open(certLocation + '/' + clientKey,'r')
 decodedClientKey = open(configuration['ssl.key.location'],'w')
 decodedClientKey.write(codedClientKey.read())
 codedClientKey.close()
 decodedClientKey.close()
+
+producer = Producer(configuration)
+
 
 @app.route('/')
 def display_menu():
@@ -159,27 +184,15 @@ def update_users():
         'country':country,
         'user_type':user_type
        }
-      
-        producer = Producer(configuration)
 
         try:
             logger.info(f'Starting kafka producer to produce to topic: {topic}. ^C to exit.')
-            for n in range(10):
-                record_key = f'key_{n}'
-                record_value = f'value_{n}'
-
-                producer.poll(0)
-                producer.produce(topic, key=record_key, value=record_value, on_delivery=delivery_callback)
+            record_key = f'key'
+            publish_message(producer,topic, record_key,row)
 
             logger.info('Done producing.')
         except KeyboardInterrupt:
-            logger.info('Caught KeyboardInterrupt, stopping.')
-        finally:
-            if producer is not None:
-                logger.info('Flushing producer.')
-                producer.flush()
-
-        
+            logger.info('Caught KeyboardInterrupt, stopping.')     
 
     return render_template('update_Users.html') 
 
