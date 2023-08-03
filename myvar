@@ -1,6 +1,0 @@
-mysql_HOST="mysql"
-mysql_USER="root"
-mysql_PASSWORD="root"
-mysql_PORT="3306"
-kafka_HOST="kafka-broker-1"
-kafka_PORT="9092"
