@@ -4,12 +4,23 @@ from flask import Flask, render_template, request
 from kafka import KafkaProducer,KafkaConsumer
 from menu import Filter, Filter_by_price, Filter_by_location, Filter_by_rating
 from myproducer import connect_kafka_producer,publish_message
+from confluent_kafka import Producer
 import json
 import time
 import datetime
 from database_utils import getConn
 from connection_utils import check_connection
-import os
+import os,base64
+import logging
+from time import gmtime
+from string_producer import *
+from string_producer import _full_path_of
+from certificate_utils import decode_certificate
+import base64
+
+
+
+
 
 app = Flask(__name__)
 
@@ -91,97 +102,59 @@ def update_users():
         'user_type':user_type
        }
         
-        kafka_host = os.environ.get("kafka_HOST")
-        kafka_port = os.environ.get("kafka_PORT")
-        bootstrap_servers = f"{kafka_host}:{kafka_port}"
-        sock_obj = check_connection(kafka_host,kafka_port)
-        print("helloooo??")
-        print(sock_obj)
-        if sock_obj:
+
+        logger = logging.getLogger('')  # Root logger, to catch all submodule logs
+        logger.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(asctime)s.%(msecs)03d|%(levelname)s|%(filename)s| %(message)s',
+                              datefmt='%Y-%m-%d %H:%M:%S')
+        formatter.converter = gmtime  # Log UTC time
+
         
-            kafka_producer = connect_kafka_producer(bootstrap_servers)
+        axual_host = os.environ.get("bootstrap.servers")
+        axual_port = os.environ.get("port")
+
+        bootstrap_servers = f"{axual_host}:{axual_port}"
+
        
-           
-            #Produce data to the Kafka broker
-            if kafka_producer is not None:
-                publish_message(kafka_producer,'myusers','test',row)
-                print("Producing data to the Kafka broker....")
-                kafka_producer.close()
+      
+        print(" ")
+
+        print("I am about to print...")
+
         
-                time.sleep(5)
+        decode_certificate("/app/client-cert/client.pem","/tmp/client.pem")
 
-                print("We successfully produced some data...")
-                print(" ")
+        decode_certificate("/app/client-cert/clientkey.pem","/tmp/clientkey.pem")
+      
 
 
-                consumer = KafkaConsumer('myusers', auto_offset_reset='earliest',
-                                bootstrap_servers=['kafka-broker-1:9092'], api_version=(0, 10), consumer_timeout_ms=1000)
-              
         
-                mysql_host=os.environ.get('mysql_HOST')
-                mysql_user = os.environ.get('mysql_USER')
-                mysql_password = os.environ.get('mysql_PASSWORD')
-                mysql_port = os.environ.get('mysql_PORT')
-                print(mysql_host,mysql_port)
-                sock_obj = check_connection(mysql_host,mysql_port)
-
-                print(sock_obj)
-
-
-                if sock_obj:
-                    cnx = getConn(mysql_host,mysql_user,mysql_password)
-                    cur = cnx.cursor()
-
-                    if cnx:
+       
+        topic = os.environ.get("topic")
+        configuration = {
+         'bootstrap.servers': bootstrap_servers,
+         # SSL configuration
+         'security.protocol': "SSL",
+         'ssl.endpoint.identification.algorithm': "none",
+         'ssl.certificate.location': _full_path_of("/tmp/client.pem"),
+         'ssl.key.location':_full_path_of("/tmp/clientkey.pem"),
+         'ssl.ca.location':_full_path_of("/tmp/client.pem"),
+         'acks': "all",
+#         'debug': debug,
+         'logger': logger
+     }
                 
-                        #Query the max id in the Users table
-                        cur.execute("""select max(id) from Users""")
-                        res = cur.fetchone()
-                        max_id = res[0] + 1
-                
-                        print("Ready to consume data...")
-                        for msg in consumer:
-                    
-                            mymsg = msg.value.decode('utf-8')
-                            json_data = json.loads(mymsg)
-                            fn = json_data['first_name']
-                            ln = json_data['last_name']
-                            email = json_data['email']
-                            phone = json_data['phone_number']
-                            dob = json_data['DoB']
-                            gender = json_data['gender']
-                            country = json_data['country']
-                            user_type = json_data['user_type']
-                            print(" ")
-                            time.sleep(5)
-                            print("Ready to load data to mysql database...")
+
+        print("Our data..",row)
+
+        print("bootstrap_servers...",bootstrap_servers)
+
+        print("my topic ...",topic)
 
 
-                            cur.execute("""INSERT INTO Users (id, first_name, last_name, email, phone_number, DoB, gender, country, user_type)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""", (max_id, fn, ln, email, phone, dob, gender, country, user_type))
-
-                            cnx.commit() 
-                        consumer.close()
-                        print(" ")
-                        print("Let's see if the record was added to the table")
-                        query = "SELECT * FROM Users ORDER BY id DESC LIMIT 1"
-
-                        cur.execute(query)
-
-                        res = cur.fetchone()
-                        print(res)
-
-                    else:
-                        print("Can't connect to mysql container. Exit...")
-
-                else:
-                    print("Can't connect to mysql container. Exit...")
-            else:
-                print("Can't connect to the Kafka-broker. Exit...")
-        else:
-            print("Can't connect to Kafka container. Exit..")
-
-
+        produce_data(configuration,topic,row,logger)
+        
+  
     return render_template('update_Users.html') 
 
 @app.route('/update/reservations',methods=['GET','POST'])
@@ -195,5 +168,5 @@ def update_reservations():
 @app.route('/quit')
 def quit():
     return "Goodbye!"
-#app.run(debug=True)
+
 app.run(host="0.0.0.0")
