@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: env
+data:
+  CERTLOCATION: {{ .Values.env.certLocation }}
+  CLIENTPUB : {{.Values.env.clientPub}}
+  CA : {{.Values.env.clientPub}}
+  CLIENTKEY : {{.Values.env.clientKey}}
+  KAFKA_BROKER_HOST : {{.Values.env.kafkaBrokerHost}}
+  KAFKA_BROKER_PORT : {{.Values.env.kafkaBrokerPort | quote }}
+  TOPIC: {{.Values.env.topic}}    

@@ -70,14 +70,13 @@ def publish_message(producer_instance, topic_name, key, value):
 kafka_host = os.environ.get("KAFKA_BROKER_HOST")
 kafka_port = os.environ.get("KAFKA_BROKER_PORT")
 topic = os.environ.get("TOPIC")
-tmpCertLocation = str(os.environ.get("TMPCERTLOCATION"))
 certLocation = str(os.environ.get("CERTLOCATION"))
 clientPub = str(os.environ.get("CLIENTPUB"))
 clientKey = str(os.environ.get("CLIENTKEY"))
 ca = str(os.environ.get("CA"))
 
 logging.info("Connection to %s:%s topic: %s",kafka_host,kafka_port,topic)
-logging.info("%s %s %s %s %s",tmpCertLocation,certLocation,clientPub,clientKey,ca)
+logging.info("%s %s %s %s",certLocation,clientPub,clientKey,ca)
 
 # Kafka producer configuration
 configuration = {
@@ -85,26 +84,13 @@ configuration = {
 # SSL configuration
 'security.protocol': 'SSL',
 'ssl.endpoint.identification.algorithm': 'none',
-'ssl.certificate.location': _full_path_of(tmpCertLocation + '/' + clientPub),
-'ssl.key.location': _full_path_of(tmpCertLocation + '/' + clientKey),
-'ssl.ca.location': _full_path_of(tmpCertLocation + '/' + ca),
+'ssl.certificate.location': _full_path_of(certLocation + '/' + clientPub),
+'ssl.key.location': _full_path_of(certLocation + '/' + clientKey),
+'ssl.ca.location': _full_path_of(certLocation + '/' + ca),
 'acks': 'all',
 # 'debug': 'all',
 'logger': logger
 }
-
-codedClientPub = open(certLocation + '/' + clientPub,'r')
-decodedClientPub = open(configuration['ssl.certificate.location'],'w')
-decodedClientPub.write(codedClientPub.read())
-
-codedClientPub.close()
-decodedClientPub.close()
-
-codedClientKey = open(certLocation + '/' + clientKey,'r')
-decodedClientKey = open(configuration['ssl.key.location'],'w')
-decodedClientKey.write(codedClientKey.read())
-codedClientKey.close()
-decodedClientKey.close()
 
 producer = Producer(configuration)
 
