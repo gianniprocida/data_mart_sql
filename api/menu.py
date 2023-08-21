@@ -4,89 +4,48 @@ import pandas as pd
 import mysql.connector
 from sqlalchemy import create_engine, Date, Enum
 import pandas as pd
-import sqlalchemy
-import os 
-#from dotenv import load_dotenv
-
-#load_dotenv()
-def getConn():
-    host = os.environ.get('DB_HOST')
-    user = os.environ.get('DB_USER')
-    password = os.environ.get('DB_PASSWORD')
-    cnx = mysql.connector.connect(
-        host=host,
-        user=user,
-        password=password
-    )
-
-    return cnx
+import os,socket
+from database_utils import getConn
 
 
 class Filter():
     def __init__(self):
-       self.cnx = getConn()
+       self.cnx = getConn(os.environ.get('DB_HOST'),
+                os.environ.get('DB_USER'),
+                os.environ.get('DB_PASSWORD'),
+                os.environ.get('DB_DATABASE_NAME'))
        self.cur = self.cnx.cursor()
-       self.cur.execute("use data_mart_airbnb")
     def filter(self):
         pass
 
 
 class Filter_by_rating(Filter):
     def filter(self,rating):
-        query = """select title,price_per_night from Listings
+        query = """select title,price_per_night,property_type from Listings
         where id in (select listing_id from Reviews where rating > %s) limit 4;"""
         self.cur.execute(query,(rating,))
         rows = self.cur.fetchall()
-        for item in rows:
-         print("Hotel: {0}, Price_per_night: {1}".format(item[0],float(item[1])))
-        print(" ")
-        query2 = """select street_name,house_number,city,country,zip_code from Listing_addresses where id in (select address_id from Listings a inner join Reviews b on a.id = b.listing_id where rating > %s);"""
-        self.cur.execute(query2,(rating,))
-        rows = self.cur.fetchall()
-       
         return rows
+    
 class Filter_by_price(Filter):
    def filter(self,min_price,max_price):
       
-        query1 = """select title,price_per_night from Listings where price_per_night between %s and %s limit 4""" 
-
+        query1 = """select title,price_per_night,property_type from Listings where price_per_night between %s and %s limit 4""" 
         self.cur.execute(query1,(min_price,max_price))
-
-        rows = self.cur.fetchall()
-
-        for item in rows:
-            print("Hotel: {0}, Price_per_night: {1}".format(item[0],float(item[1])))
-        print(" ")
-
-        query2 = """select street_name,house_number,city,country,zip_code from Listing_addresses a 
-        inner join Listings b on a.id = b.address_id where b.price_per_night between %s and %s order by b.price_per_night limit 4;"""
-        self.cur.execute(query2,(min_price,max_price))
         rows = self.cur.fetchall()
         return rows
      
 class Filter_by_location(Filter):
    def filter(self,location):
         
-        query1 = f"""select title,price_per_night from Listings a
+        query1 = f"""select title,price_per_night,property_type from Listings a
         inner join Listing_addresses b on a.address_id = b.id
         where city like '%{location}%' limit 4""" 
 
         self.cur.execute(query1)
         rows = self.cur.fetchall()
 
-        for item in rows:
-            print("Hotel: {0}, Price_per_night: {1}".format(item[0],float(item[1])))
-        print(" ")
-         
-        query2 = f"""select street_name,house_number,city,country from Listing_addresses 
-        where id = (select address_id from Listings where id = 
-        (select a.id from Listings a inner join Listing_addresses b on a.address_id = b.id where city like '%{location}%'));"""
-      
-        self.cur.execute(query2)
-        rows = self.cur.fetchall()
-        for item in rows:
-            print("Street name: {0}, House number: {1}, City: {2}, Country: {3}".format(item[0],int(item[1]),item[2],item[3]))
-        print(" ")
+        return rows
 
 class Filter_by_amenity(Filter):
     def filter(self,amenity):
@@ -340,4 +299,3 @@ if __name__=='__main__':
 #             if action and choice in {"1","2","3","4"}:
 #                 inp = input("Enter your choice:")
 #                 if choice == "1":
-
