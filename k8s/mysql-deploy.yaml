@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: mysql-deploy
+  name: mysql-deploy
+  namespace: app-space
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-deploy
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: mysql-deploy
+    spec:
+      volumes:
+       - name: my-sql-dump
+         configMap: 
+           name: my-sql-dump-config       
+      containers:
+      - image: mysql
+        name: mysql
+        ports:
+        - containerPort: 3306
+        env: 
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom: 
+              configMapKeyRef:
+                name: my-sql-config
+                key: MYSQL_ROOT_PASSWORD
+          - name: MYSQL_DATABASE
+            valueFrom:
+              configMapKeyRef:
+                name: my-sql-config
+                key: MYSQL_DATABASE
+        volumeMounts: 
+          - name: my-sql-dump
+            mountPath: /docker-entrypoint-initdb.d     
+        resources: {}
+status: {}

@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: api-deploy
+  name: api-deploy
+  namespace: app-space
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-deploy
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: api-deploy
+    spec:
+      containers:
+      - image: giprocida/myflask:1.0
+        imagePullPolicy: Never
+        name: myflask
+        ports:
+        - containerPort: 5000
+        envFrom:
+        - configMapRef: 
+            name: my-sql-config
+        resources: {}
+status: {}
+

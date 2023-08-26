@@ -1,0 +1,4 @@
+MYSQL_HOST=mysql-deploy
+MYSQL_USER=root
+MYSQL_ROOT_PASSWORD=mysecret
+MYSQL_DATABASE=data_mart_airbnb

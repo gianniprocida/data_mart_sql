@@ -1,0 +1,11 @@
+apiVersion: v1
+data:
+  MYSQL_DATABASE: data_mart_airbnb
+  MYSQL_HOST: mysql-deploy
+  MYSQL_ROOT_PASSWORD: root
+  MYSQL_USER: root
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: my-sql-config
+  namespace: app-space
