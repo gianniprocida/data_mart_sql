@@ -29,4 +29,3 @@ spec:
             name: my-sql-config
         resources: {}
 status: {}
-
